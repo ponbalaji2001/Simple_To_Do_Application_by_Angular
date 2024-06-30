@@ -1,0 +1,73 @@
+<div class="table-container">
+    <div class="table-title">
+      <h3>{{tableTitle | capitalize}} ToDo's</h3>
+      <button nz-button nzType="primary" (click)="showModal('add',-1)" class="add-btn">Add</button>
+    </div>
+    <app-todo-form [isShowModal]="isShowModal" [option]="option" [todoId]="todoId" (showModalChange)="handleShowModal($event)"></app-todo-form>
+    <nz-table #nzTable [nzData]="ToDoDisplayData" nzTableLayout="fixed" 
+      [nzPageSize]="pageSize"
+      [nzTotal]="total"
+      [nzFrontPagination]="false"
+      nzTableLayout="fixed"
+      nzShowSizeChanger
+      nzShowPagination
+      [nzPageSizeOptions]="[10, 20, 30, 50, 100]" 
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+    >
+        <thead>
+          <tr>
+            <th nzCustomFilter nzColumnKey="task">
+              Task
+              <nz-filter-trigger [(nzVisible)]="visible" [nzActive]="searchValue.length > 0" [nzDropdownMenu]="menu">
+                <span nz-icon nzType="search"></span>
+              </nz-filter-trigger>
+            </th>
+            <th nzColumnKey="description">Description</th>
+            <th nzColumnKey="category" [nzFilters]="categoryFilter" (nzFilterChange)="handleCategoryFilterChange($event)">Category</th>
+            <th nzColumnKey="dueDate" [nzSortOrder]="dateSortOrder" [nzSortFn]="dateSortFn" [nzSortDirections]="dateSortDirections">Due Date</th>
+            <th nzColumnKey="priority" [nzFilters]="priorityFilter" (nzFilterChange)="handlePriorityFilterChange($event)">Priority</th>
+            <th nzColumnKey="status" [nzFilters]="statusFilter" (nzFilterChange)="handleStatusFilterChange($event)">Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of nzTable.data" class="editable-row">
+            <ng-container>
+              <td>{{ data.task }}</td>
+              <td class="ellipsis" [nzTooltipTitle]="data.description" [nzTooltipPlacement]="['topLeft', 'leftTop']" nz-tooltip>{{ data.description }}</td>
+              <td>{{ data.category }}</td>
+              <td>{{ data.due_date | date:'dd/MM/yyy'}}</td>
+              <td>
+                <nz-tag [nzColor]="'red'" *ngIf="data.priority==='High'" class="prioriy-tag-width">{{ data.priority }}</nz-tag> 
+                <nz-tag [nzColor]="'orange'" *ngIf="data.priority==='Medium'" class="prioriy-tag-width">{{ data.priority }}</nz-tag> 
+                <nz-tag [nzColor]="'green'" *ngIf="data.priority==='Low'" class="prioriy-tag-width">{{ data.priority }}</nz-tag> 
+              </td>
+              <td>
+                <div class="editable-cell" [hidden]="editId === data.id" (click)="startSatusChange(data.id, data.status)">
+                  <nz-tag [nzColor]="'red'" *ngIf="data.status==='Not Started'" class="status-tag-width">{{ data.status }}</nz-tag> 
+                  <nz-tag [nzColor]="'orange'" *ngIf="data.status==='In Progress'" class="status-tag-width">{{ data.status }}</nz-tag> 
+                  <nz-tag [nzColor]="'green'" *ngIf="data.status==='Completed'" class="status-tag-width">{{ data.status }}</nz-tag> 
+                </div>
+                <nz-select [hidden]="editId !== data.id" [(ngModel)]="tempStatus" (ngModelChange)="stopSatusChange(tempStatus)" (blur)="stopSatusChange(tempStatus)">
+                  <nz-option *ngFor="let item of statusFilter" [nzLabel]="item.text" [nzValue]="item.value"></nz-option>
+                </nz-select>
+              </td>
+              <td class="action-icons">
+                <a (click)="showModal('update',data.id)"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
+                <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteDataInStore(data.id)"><span nz-icon nzType="delete" nzTheme="outline"></span></a>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </nz-table>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <div class="ant-table-filter-dropdown">
+          <div class="search-box">
+            <input type="text" nz-input placeholder="Search name" [(ngModel)]="searchValue" />
+            <button nz-button nzSize="small" nzType="primary" (click)="search()" class="search-button">Search</button>
+            <button nz-button nzSize="small" (click)="reset()">Reset</button>
+          </div>
+        </div>
+      </nz-dropdown-menu>
+</div>
