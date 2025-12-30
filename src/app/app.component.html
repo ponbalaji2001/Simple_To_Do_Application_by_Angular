@@ -1,9 +1,3 @@
 <div  class="app">
-<nz-tabset [nzTabBarExtraContent]="extraTemplate">
-  <nz-tab nzTitle="Work" (nzClick)="tableTitleChange('work')"><app-todo /></nz-tab>
-  <nz-tab nzTitle="Personal" (nzClick)="tableTitleChange('personal')"><app-todo /></nz-tab>
-</nz-tabset>
-<ng-template #extraTemplate>
-  <img src="../assets/todo-logo.png" alt="logo"/>
-</ng-template>
+  <app-todo></app-todo>
 </div>

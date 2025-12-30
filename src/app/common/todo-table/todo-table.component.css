@@ -1,102 +1,101 @@
 
-nz-table thead th, nz-table tbody td{
+  nz-table thead th, nz-table tbody td{
     line-height: 1;
     padding-top: 9.2px;
     padding-bottom: 9.2px;
   }
 
   .search-box {
-      padding: 8px;
-    }
+    padding: 8px;
+  }
+
+  .search-box input, nz-date-picker {
+    width: 188px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .search-box button {
+    width: 90px;
+  }
+
+  .search-button {
+    margin-right: 8px;
+  }
+
+  .ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; 
+  }
+
+  .save {
+    margin-right: 8px;
+  }
+
+  .editable-cell {
+    position: relative;
+    padding: 5px;
+    cursor: pointer;
+    width:101.5px;
+  }
+
+  .editable-row:hover .editable-cell {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 5px;
+  }
+
+  nz-select{
+    min-width: 120px; 
+    max-width: 120px; 
+  }
+
+  .prioriy-tag-width {
+    display: inline-block;
+    width: 70px; 
+    text-align: center; 
+  }
+
+  .status-tag-width {
+    display: inline-block;
+    width: 90px; 
+    text-align: center; 
+  }
+
+  .action-icons a{
+    margin-right: 20px;
+  }
   
-    .search-box input {
-      width: 188px;
-      margin-bottom: 8px;
-      display: block;
-    }
-  
-    .search-box button {
-      width: 90px;
-    }
-  
-    .search-button {
-      margin-right: 8px;
-    }
-  
-    .ellipsis {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 200px; 
-    }
-  
-    .save {
-      margin-right: 8px;
-    }
-  
-    .editable-cell {
-      position: relative;
-      padding: 5px;
-      cursor: pointer;
-      width:101.5px;
-    }
-  
-    .editable-row:hover .editable-cell {
-      border: 1px solid #d9d9d9;
-      border-radius: 4px;
-      padding: 5px;
-    }
-  
-    nz-select{
-      min-width: 120px; 
-      max-width: 120px; 
-    }
-  
-    .prioriy-tag-width {
-      display: inline-block;
-      width: 70px; 
-      text-align: center; 
-    }
-  
-    .status-tag-width {
-      display: inline-block;
-      width: 90px; 
-      text-align: center; 
-    }
-  
-    .action-icons a{
-      margin-right: 20px;
-    }
-    
-    nz-divider {
-      margin: 4px 0;
-    }
-  
-    .add-categ-container {
-      display: flex;
-      flex-wrap: nowrap;
-      padding: 8px;
-    }
-  
-  
-  .table-title{
+  nz-divider {
+    margin: 4px 0;
+  }
+
+  .add-categ-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom:10px;
-    margin-top: -5px;
-    position: relative; 
+    flex-wrap: nowrap;
+    padding: 8px;
   }
-  
-  .table-title h3{
-    flex: 1; 
-    text-align: center;
-    font-weight: bold;
-    color: #3d3d3d;
-  }
-  
-  .table-title button{
-    margin-left: auto;
-  }
-  
-  
+
+
+.table-title{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom:10px;
+  margin-top: -5px;
+  position: relative; 
+}
+
+.table-title h3{
+  flex: 1; 
+  text-align: center;
+  font-weight: bold;
+  color: #3d3d3d;
+}
+
+.table-title button{
+  margin-left: auto;
+}
+

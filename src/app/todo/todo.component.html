@@ -1,1 +1,9 @@
-<app-todo-table></app-todo-table>
+<nz-tabset [nzTabBarExtraContent]="extraTemplate">
+    <nz-tab *ngFor="let type of types;" [nzTitle]="type.name" (nzClick)="tabChange(type)">
+    </nz-tab>
+</nz-tabset>
+<ng-template #extraTemplate>
+  <!-- <img src="../assets/todo-logo.png" alt="logo"/> -->
+</ng-template>
+
+ <app-todo-table [title]="title" [toDoList$]="toDoList$" [type]="type"></app-todo-table>

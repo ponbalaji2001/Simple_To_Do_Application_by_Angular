@@ -1,153 +1,191 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { todoModel } from 'src/app/state/todo.model';
+import { todoModel, typeModel } from 'src/app/state/todo.model';
 import { ToDoState } from 'src/app/state/todo.state';
-import { getToDoList } from 'src/app/state/todo.selectors';
 import { deleteData, updateStatus } from 'src/app/state/todo.actions';
-import { TodoService } from 'src/app/service/todo.service';
+import { getCategories, getPriority, getStatus } from 'src/app/state/todo.selectors';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-todo-table',
   templateUrl: './todo-table.component.html',
   styleUrls: ['./todo-table.component.css']
 })
+export class TodoTableComponent implements OnInit, OnChanges{
 
-export class TodoTableComponent {
-  tableTitle : string=""
-  option : string=""
-  todoId :number=-1;
-  tempStatus: string = '';
+  @Input() title: string = '';
+  @Input() type: typeModel | null = null;
+  @Input() toDoList$!: Observable<todoModel[]>;
+
+  filteredToDoList: todoModel[] = [];
+  displayToDoList: todoModel[] = [];
+  categories: any[] = [];
+  selectedCategories: string[] = [];
+  selectedPriorities: string[] = [];
+  selectedStatuses: string[] = [];
   searchValue = '';
+  showSearch = false;
+  showDateFilter = false;
   pageSize = 10;
-  visible = false;
-  ToDoDisplayData:todoModel[]=[];
-  total=0;
-  editId: number = -1;
+  total = 0;
+  editId = -1;
+  tempStatus = '';
+  isShowModal = false;
+  option = '';
+  todoId = -1;
+  priority: any[] = [];
+  status: any[] = [];
+  date: any;
   dateSortOrder: string | null = null;
-  dateSortDirections: string[] = ['ascend', 'descend', ''];
-  isShowModal:boolean=false;
-  categoryFilter:any[]=[];
-  priorityFilter:any[]=[];
-  statusFilter:any[]=[];
+  currentPage: number = 1;
 
-  ToDoList$ : Observable<any[]>;
+  constructor(private store: Store<ToDoState>) {}
 
-  constructor(private store: Store<ToDoState>, private todoService: TodoService) {
-    this.ToDoList$ = this.store.select(getToDoList, { categ: this.tableTitle });  
-      this.ToDoList$.subscribe(data => {
-        this.total=data.length;
-        this.ToDoDisplayData = data;
-    });
-  }
-  
-
-  dateSortFn = (a: any, b: any) => {
-    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-  };
-
-  
   ngOnInit(): void {
-    this.todoService.tableTitle$.subscribe(title => {
-      this.tableTitle = title;
-      this.updateToDoList();
-      this.updateDisplayData(1, this.pageSize);
+    this.store.select(getPriority).subscribe(items => {
+      this.priority = items;
     });
 
-    this.todoService.personalCategoryFilter$.subscribe(categories => {
-      this.categoryFilter = categories;
+    this.store.select(getStatus).subscribe(items => {
+      this.status = items;
     });
 
-    this.priorityFilter = this.todoService.getPriorityFilter();
-    this.statusFilter = this.todoService.getStatusFilter();
+    this.getCategories(this.type!.id);
+    this.applyFilters();
   }
 
-  updateToDoList() {
-    this.ToDoList$ = this.store.select(getToDoList, { categ: this.tableTitle });
-    this.ToDoList$.subscribe(data => {
-      this.total=data.length;
-      this.ToDoDisplayData = data;
-    });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['toDoList$']) {
+      this.toDoList$.subscribe(list => {
+        this.filteredToDoList = [...list]; 
+        this.total = list.length;
+        this.applyFilters();
+      });
+    }
   }
 
-  reset(): void {
+  onDateSortChange(order: any): void {
+    this.dateSortOrder = order;
+    this.applyFilters();
+  }
+
+  resetSearch(): void {
     this.searchValue = '';
-    this.search();
-    this.updateDisplayData(1, this.pageSize);
+    this.applyFilters();
+    this.showSearch = false;
   }
 
-  search(): void {
-    this.visible = false;
-    this.ToDoList$.subscribe(data => {
-      this.ToDoDisplayData = data.filter((item: todoModel) => item.task.toLowerCase().indexOf(this.searchValue.toLowerCase()) !== -1);
-      this.total=this.ToDoDisplayData.length;
-    });
+  resetDateFilter(): void {
+    this.date = null;
+    this.applyFilters();
+    this.showDateFilter = false;
   }
 
-  handleCategoryFilterChange = (categories: string[]) => {
-    this.ToDoList$.subscribe(data => {
-      this.ToDoDisplayData = data.filter(item => categories.length === 0 || categories.includes(item.category));
-      this.total = this.ToDoDisplayData.length;
-    });
-  };
+  handleCategoryFilterChange(categories: string[]): void {
+    this.selectedCategories = categories;
+    this.applyFilters();
+  }
 
-  handlePriorityFilterChange = (priorities: string[]) => {
-    this.ToDoList$.subscribe(data => {
-      this.ToDoDisplayData = data.filter(item => priorities.length === 0 || priorities.includes(item.priority));
-      this.total = this.ToDoDisplayData.length;
-    });
-  };
+  handlePriorityFilterChange(priorities: string[]): void {
+    this.selectedPriorities = priorities;
+    this.applyFilters();
+  }
 
-  handleStatusFilterChange = (statuses: string[]) => {
-    this.ToDoList$.subscribe(data => {
-      this.ToDoDisplayData = data.filter(item => statuses.length === 0 || statuses.includes(item.status));
-      this.total = this.ToDoDisplayData.length;
-    });
-  };
+  handleStatusFilterChange(statuses: string[]): void {
+    this.selectedStatuses = statuses;
+    this.applyFilters();
+  }
 
+  isSameDate(todoDate: string | Date, selectedDate: Date): boolean {
+    const d1 = new Date(todoDate);
+    const d2 = new Date(selectedDate);
+
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
+
+ applyFilters(): void {
+    this.toDoList$.subscribe(list => {
+      this.filteredToDoList = list.filter(todo => {
+        const categoryMatch = this.selectedCategories.length === 0 || this.selectedCategories.includes(todo.categ_id);
+        const priorityMatch = this.selectedPriorities.length === 0 || this.selectedPriorities.includes(todo.priority);
+        const statusMatch = this.selectedStatuses.length === 0 || this.selectedStatuses.includes(todo.status);
+        const searchMatch = todo.task.toLowerCase().includes(this.searchValue.toLowerCase());
+        const dateMatch = !this.date || this.isSameDate(todo.due_date, this.date);
+        return categoryMatch && priorityMatch && statusMatch && searchMatch && dateMatch;
+      });
+
+      if (this.dateSortOrder) {
+        this.filteredToDoList = this.filteredToDoList.sort((a, b) => {
+          const d1 = new Date(a.due_date).getTime();
+          const d2 = new Date(b.due_date).getTime();
+          return this.dateSortOrder === 'ascend' ? d1 - d2 : d2 - d1;
+        });
+      }
+
+      this.total = this.filteredToDoList.length;
+      const maxPage = Math.ceil(this.total / this.pageSize);
+      if (this.currentPage > maxPage) {
+        this.currentPage = maxPage || 1; 
+      }
+
+      this.updateDisplayData(this.currentPage, this.pageSize);
+    });
+  }
 
   onPageIndexChange(pageIndex: number): void {
+    this.currentPage = pageIndex;
     this.updateDisplayData(pageIndex, this.pageSize);
   }
 
   onPageSizeChange(pageSize: number): void {
     this.pageSize = pageSize;
-    this.updateDisplayData(1, pageSize); 
+    this.currentPage = 1;
+    this.updateDisplayData(1, pageSize);
   }
 
-  updateDisplayData(pageIndex: number = 1, pageSize: number = this.pageSize): void {
+  updateDisplayData(pageIndex: number, pageSize: number): void {
     const start = (pageIndex - 1) * pageSize;
     const end = start + pageSize;
-
-    this.ToDoList$.subscribe(data => {
-      this.ToDoDisplayData = data.slice(start, end);
-    });
+    this.displayToDoList = this.filteredToDoList.slice(start, end);
   }
- 
-  startSatusChange(id: number, currentStatus:string): void {
+
+  startSatusChange(id: number, currentStatus: string): void {
     this.editId = id;
     this.tempStatus = currentStatus;
   }
 
   stopSatusChange(status: string): void {
-    if(this.editId>-1){
-      this.store.dispatch(updateStatus({categ:this.tableTitle, id:this.editId, status })); // Dispatch Update Status Action
+    if (this.editId > -1) {
+      this.store.dispatch(updateStatus({ id: this.editId, status }));
     }
-    
     this.editId = -1;
   }
-  
-  deleteDataInStore(id: number): void{
-    this.store.dispatch(deleteData({categ:this.tableTitle, id:id})); //Dispatch Delete Action
+
+  deleteDataInStore(id: number): void {
+    this.store.dispatch(deleteData({ id }));
   }
 
-  showModal(option:string,todoId:number):void{
-    this.option=option;
-    this.todoId=todoId;
-    this.isShowModal=true;
+  showModal(option: string, todoId: number): void {
+    this.option = option;
+    this.todoId = todoId;
+    this.isShowModal = true;
   }
 
-  handleShowModal(show:boolean): void {
-    this.isShowModal = show;  
+  handleShowModal(show: boolean): void {
+    this.isShowModal = show;
+  }
+
+  getCategories(typeId: string){
+    this.store.select(getCategories, { type_id: typeId })
+    .subscribe(categories => {
+      this.categories = categories.map(categ => ({
+        text: categ.name,
+        value: categ.id
+      }));
+    });
   }
 }

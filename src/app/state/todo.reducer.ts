@@ -1,111 +1,72 @@
 import { initialState } from "./todo.state";
 import { createReducer, on } from "@ngrx/store";
-import { addData, updateData, deleteData, updateStatus } from "./todo.actions";
+import { addData, updateData, deleteData, updateStatus, addCateg } from "./todo.actions";
+
 export const _todoReducer = createReducer(
     initialState,
 
     on(addData, (state, action) => {
         let data = { ...action.todoData };
-        if (action.categ === "personal") {
-            data.id = state.personalToDos.length + 1;
-            return {
-                ...state,
-                personalToDos: [...state.personalToDos, data]
-            };
-        } else if (action.categ === "work") {
-            data.id = state.workToDos.length + 1;
-            return {
-                ...state,
-                workToDos: [...state.workToDos, data]
-            };
-        }
-        return state; 
+        data.id = state.ToDos.length + 1;
+        return {
+            ...state,
+            ToDos: [...state.ToDos, data]
+        };
     }),
 
     on(updateData, (state,action)=>{
-        if (action.categ === "personal") {
-            const updatedPersonalData = state.personalToDos.map((data)=>{
-                return action.todoData.id === data.id ? action.todoData : data;
-            })
-            return {
-                ...state,
-                personalToDos: updatedPersonalData
-            }
-        } else if (action.categ === "work") {
-            const updatedWorkData = state.workToDos.map((data)=>{
-                return action.todoData.id === data.id ? action.todoData : data;
-            })
-            return {
-                ...state,
-                workToDos: updatedWorkData
-            }
+        const updatedToDoData = state.ToDos.map((data)=>{
+            return action.todoData.id === data.id ? action.todoData : data;
+        })
+
+        return {
+            ...state,
+            ToDos: updatedToDoData 
         }
-        return state; 
     }),
 
     on(deleteData,(state, action)=>{    
-        if (action.categ === "personal") {
-            const updatedPersonalData = state.personalToDos.filter((data)=>{
-                return data.id !== action.id;
-            })
-            return{
-                ...state,
-                personalToDos: updatedPersonalData
-            };       
-        } else if (action.categ === "work") {
-            const updatedWorkData = state.workToDos.filter((data)=>{
-                return data.id !== action.id;
-            })
-            return{
-                ...state,
-                workToDos: updatedWorkData
-            };
-        }
-        return state; 
+        const updatedToDoData = state.ToDos.filter((data)=>{
+            return data.id !== action.id;
+        })
+        return{
+            ...state,
+            ToDos: updatedToDoData 
+        };       
     }),
 
     on(updateStatus, (state,action)=>{
-        if (action.categ === "personal") {
 
-            const updatedPersonalData = state.personalToDos.map((data)=>{
-                if (action.id === data.id) {
-                    return {
-                      ...data,
-                      status: action.status
-                    };
-                }
-                return data;
-            })
-
-            return {
-                ...state,
-                personalToDos: updatedPersonalData
+        const updatedToDoData = state.ToDos.map((data)=>{
+            if (action.id === data.id) {
+                return {
+                    ...data,
+                    status: action.status
+                };
             }
+            return data;
+        })
 
-        } else if (action.categ === "work") {
-
-            const updatedWorkData = state.workToDos.map((data)=>{
-                if (action.id === data.id) {
-                    return {
-                      ...data,
-                      status: action.status
-                    };
-                }
-                return data;
-            })
-            
-            return {
-                ...state,
-                workToDos: updatedWorkData
-            }
+        return {
+            ...state,
+            ToDos: updatedToDoData 
         }
-        return state; 
     }),
 
+    on(addCateg, (state, action) => {
+        let data = { 
+            ...action.categ,
+            id: 'C' + (state.Categories.length + 1).toString() 
+        };
+        
+        return {
+            ...state,
+            Categories: [...state.Categories, data]
+        };
+    }),
 
-    
 )
 
 export function todoReducer(state: any, action: any) {
     return _todoReducer(state, action);
-  }
+}

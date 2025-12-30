@@ -16,7 +16,7 @@
               <nz-form-label nzFor="category">Category</nz-form-label>
               <nz-form-control [nzErrorTip]="categoryErrorTpl">
                 <nz-select nzShowSearch nzAllowClear [nzDropdownRender]="renderTemplate" formControlName="category" id="category" nzPlaceHolder="Choose category">
-                  <nz-option *ngFor="let item of categoryFilter" [nzLabel]="item.text" [nzValue]="item.value"></nz-option>
+                  <nz-option *ngFor="let item of categories" [nzLabel]="item.text" [nzValue]="item.value"></nz-option>
                 </nz-select>
                 <ng-template #renderTemplate>
                   <nz-divider></nz-divider>

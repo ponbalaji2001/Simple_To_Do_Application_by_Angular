@@ -2,10 +2,11 @@ import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ToDoState } from 'src/app/state/todo.state';
-import { addData, updateData } from 'src/app/state/todo.actions';
-import { TodoService } from 'src/app/service/todo.service';
-import { getToDo } from 'src/app/state/todo.selectors';
+import { addCateg, addData, updateData } from 'src/app/state/todo.actions';
+import { getCategories, getToDo } from 'src/app/state/todo.selectors';
 import { Observable } from 'rxjs';
+import { getPriority, getStatus } from 'src/app/state/todo.selectors';
+import { typeModel } from 'src/app/state/todo.model';
 
 @Component({
   selector: 'app-todo-form',
@@ -17,16 +18,17 @@ export class TodoFormComponent {
   @Input() isShowModal:boolean=false;
   @Input() option:string='';
   @Input() todoId: number = -1;
+  @Input() type: typeModel | null = null;
   @Output() showModalChange = new EventEmitter<boolean>();
   tableTitle:string = '';
   todoForm: FormGroup;
   ToDo$ !: Observable<any>;
-  categoryFilter:any[]=[];
   priorityFilter:any[]=[];
   statusFilter:any[]=[];
+  categories: any[] = [];
 
   
-  constructor(private fb: FormBuilder, private store: Store<ToDoState>, private todoService: TodoService) {
+  constructor(private fb: FormBuilder, private store: Store<ToDoState>) {
    
     this.todoForm = this.fb.group({
       task: [null, Validators.required],
@@ -37,27 +39,20 @@ export class TodoFormComponent {
       status: [null, Validators.required]
     });
 
-    }
+  }
 
   ngOnInit() {
-    this.todoService.tableTitle$.subscribe(title => {
-      this.tableTitle = title;
 
-      if(this.tableTitle==='personal'){
-        this.todoService.personalCategoryFilter$.subscribe(categories => {
-          this.categoryFilter = categories;
-        });
-      }else if(this.tableTitle==='work'){
-        this.todoService.workCategoryFilter$.subscribe(categories => {
-          this.categoryFilter = categories;
-        });
-      }
-
-      this.updateForm();
+    this.store.select(getPriority).subscribe(items => {
+      this.priorityFilter = items;
+    });
+    
+    this.store.select(getStatus).subscribe(items => {
+      this.statusFilter = items;
     });
 
-    this.priorityFilter = this.todoService.getPriorityFilter();
-    this.statusFilter = this.todoService.getStatusFilter();
+    this.getCategories(this.type!.id);
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -69,12 +64,11 @@ export class TodoFormComponent {
   updateForm() {
     if (this.option === 'update' && this.todoId > -1) {
 
-      // Get ToDo Data by Category & ID
-      this.ToDo$ = this.store.select(getToDo, { categ: this.tableTitle, id: this.todoId }); 
+      this.ToDo$ = this.store.select(getToDo, { id: this.todoId }); 
 
       this.ToDo$.subscribe(data => {
         if (data) {
-          this.todoForm.patchValue(data);  // Load ToDo Data into Form
+          this.todoForm.patchValue(data); 
         }
       });
     }
@@ -83,14 +77,19 @@ export class TodoFormComponent {
 
   handleOk(): void {
 
-    if(this.todoForm.valid) {
-      const formValue = this.todoForm.value;
+    if(this.todoForm.valid && this.type) {
+
+      const data = {
+        ...this.todoForm.value,
+        type: this.type.name,
+        type_id: this.type.id
+      };
      
       if(this.option==='add'){
-        this.store.dispatch(addData({categ:this.tableTitle, todoData:formValue })); // Dispatch Add Action
+        this.store.dispatch(addData({ todoData:data })); 
       }else if(this.option==='update'){
-        formValue.id=this.todoId;
-        this.store.dispatch(updateData({categ:this.tableTitle, todoData:formValue })); // Dispatch Update Action
+        data.id=this.todoId;
+        this.store.dispatch(updateData({ todoData:data })); 
       }
 
       this.todoForm.reset();
@@ -119,14 +118,26 @@ export class TodoFormComponent {
     }
   }
 
+  getCategories(typeId: string){
+    this.store.select(getCategories, { type_id: typeId })
+    .subscribe(categories => {
+      this.categories = categories.map(categ => ({
+        text: categ.name,
+        value: categ.name
+      }));
+    });
+  }
+
   addCategory(input: HTMLInputElement): void {
-    const categ = input.value;
-    if(this.tableTitle==='personal'){
-      this.todoService.addPersonalCategoryFilter({ text:categ, value:categ });
-    }else if(this.tableTitle==='work'){
-      this.todoService.addWorkCategoryFilter({ text:categ, value:categ });
+    const categ = {
+      id: "C" + (this.categories.length + 1),
+      name: input.value,
+      type: this.type!.name,
+      type_id: this.type!.id
     }
-    
+
+    this.store.dispatch(addCateg({categ}));
+    this.getCategories(this.type!.id);
   }
 
 
