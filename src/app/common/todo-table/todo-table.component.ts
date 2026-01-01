@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { todoModel, typeModel } from 'src/app/state/todo.model';
 import { ToDoState } from 'src/app/state/todo.state';
@@ -11,12 +11,13 @@ import { Observable } from 'rxjs';
   templateUrl: './todo-table.component.html',
   styleUrls: ['./todo-table.component.css']
 })
-export class TodoTableComponent implements OnInit, OnChanges{
+export class TodoTableComponent implements OnInit{
 
   @Input() title: string = '';
   @Input() type: typeModel | null = null;
   @Input() toDoList$!: Observable<todoModel[]>;
 
+  toDoList: todoModel[] = [];
   filteredToDoList: todoModel[] = [];
   displayToDoList: todoModel[] = [];
   categories: any[] = [];
@@ -50,16 +51,20 @@ export class TodoTableComponent implements OnInit, OnChanges{
       this.status = items;
     });
 
-    this.getCategories(this.type!.id);
-    this.applyFilters();
+    this.getCategories(this.type!.id); 
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['toDoList$']) {
+    if (changes['type'] && this.type) {
+      this.getCategories(this.type!.id); 
+      this.applyFilters(); 
+    }
+
+    if (changes['toDoList$'] && this.type) {
       this.toDoList$.subscribe(list => {
-        this.filteredToDoList = [...list]; 
-        this.total = list.length;
-        this.applyFilters();
+        this.toDoList = list;
+        this.applyFilters(false);
       });
     }
   }
@@ -107,34 +112,31 @@ export class TodoTableComponent implements OnInit, OnChanges{
     );
   }
 
- applyFilters(): void {
-    this.toDoList$.subscribe(list => {
-      this.filteredToDoList = list.filter(todo => {
-        const categoryMatch = this.selectedCategories.length === 0 || this.selectedCategories.includes(todo.categ_id);
-        const priorityMatch = this.selectedPriorities.length === 0 || this.selectedPriorities.includes(todo.priority);
-        const statusMatch = this.selectedStatuses.length === 0 || this.selectedStatuses.includes(todo.status);
-        const searchMatch = todo.task.toLowerCase().includes(this.searchValue.toLowerCase());
-        const dateMatch = !this.date || this.isSameDate(todo.due_date, this.date);
-        return categoryMatch && priorityMatch && statusMatch && searchMatch && dateMatch;
-      });
-
-      if (this.dateSortOrder) {
-        this.filteredToDoList = this.filteredToDoList.sort((a, b) => {
-          const d1 = new Date(a.due_date).getTime();
-          const d2 = new Date(b.due_date).getTime();
-          return this.dateSortOrder === 'ascend' ? d1 - d2 : d2 - d1;
-        });
-      }
-
-      this.total = this.filteredToDoList.length;
-      const maxPage = Math.ceil(this.total / this.pageSize);
-      if (this.currentPage > maxPage) {
-        this.currentPage = maxPage || 1; 
-      }
-
-      this.updateDisplayData(this.currentPage, this.pageSize);
+  applyFilters(resetPage: boolean = true): void {
+    this.filteredToDoList = this.toDoList.filter(todo => {
+      const categoryMatch = this.selectedCategories.length === 0 || this.selectedCategories.includes(todo.categ_id);
+      const priorityMatch = this.selectedPriorities.length === 0 || this.selectedPriorities.includes(todo.priority);
+      const statusMatch = this.selectedStatuses.length === 0 || this.selectedStatuses.includes(todo.status);
+      const searchMatch = todo.task.toLowerCase().includes(this.searchValue.toLowerCase());
+      const dateMatch = !this.date || this.isSameDate(todo.due_date, this.date);
+      return categoryMatch && priorityMatch && statusMatch && searchMatch && dateMatch;
     });
+
+    if (this.dateSortOrder) {
+      this.filteredToDoList.sort((a, b) => {
+        const d1 = new Date(a.due_date).getTime();
+        const d2 = new Date(b.due_date).getTime();
+        return this.dateSortOrder === 'ascend' ? d1 - d2 : d2 - d1;
+      });
+    }
+
+    this.total = this.filteredToDoList.length;
+   
+    if(resetPage === true) this.currentPage = 1;
+
+    this.onPageIndexChange(this.currentPage);
   }
+
 
   onPageIndexChange(pageIndex: number): void {
     this.currentPage = pageIndex;
@@ -153,16 +155,28 @@ export class TodoTableComponent implements OnInit, OnChanges{
     this.displayToDoList = this.filteredToDoList.slice(start, end);
   }
 
-  startSatusChange(id: number, currentStatus: string): void {
+  onSelectOpen(id: number, currentStatus: string): void {
     this.editId = id;
     this.tempStatus = currentStatus;
   }
 
-  stopSatusChange(status: string): void {
-    if (this.editId > -1) {
-      this.store.dispatch(updateStatus({ id: this.editId, status }));
+  onStatusChange(event: any): void {
+    const status = event as string;
+    this.tempStatus = status;
+  }
+
+  onSelectClose(open: boolean): void {
+    if (!open && this.editId !== -1) {
+      this.store.dispatch(
+        updateStatus({ id: this.editId, status: this.tempStatus })
+      );
+      this.resetEdit();
     }
+  }
+
+  resetEdit(): void {
     this.editId = -1;
+    this.tempStatus = '';
   }
 
   deleteDataInStore(id: number): void {

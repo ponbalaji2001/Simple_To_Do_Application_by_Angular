@@ -5,6 +5,7 @@ import { getTypes } from '../state/todo.selectors';
 import { ToDoState } from '../state/todo.state';
 import { todoModel, typeModel } from '../state/todo.model';
 import { Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-todo',
@@ -20,17 +21,16 @@ export class TodoComponent {
   toDoList$!: Observable<todoModel[]>;
   categories$!: Observable<any[]>
   
-  constructor(private store: Store<ToDoState>) {}
+  constructor(private store: Store<ToDoState>, private router: Router) {}
 
   ngOnInit() {
     this.getTypes();
-    this.type = this.types[0];
     this.title = this.type!.name;
     this.getCategories(this.type!.id);
     this.getToDoList(this.type!.id);
   }
 
-  tabChange(type: any){
+  onTabChange(type: any){
     this.type = type;
     this.title = this.type!.name;
     this.getCategories(type!.id);
@@ -40,6 +40,7 @@ export class TodoComponent {
   getTypes(){
     this.store.select(getTypes).subscribe(types => {
       this.types = types;
+      this.type = this.types[0];
     });
   }
 
@@ -53,5 +54,9 @@ export class TodoComponent {
 
   getToDoList(typeId: string){
     this.toDoList$ = this.store.select(getToDoList, { type_id: typeId });
+  }
+
+  logout(){
+    this.router.navigate(['/login']);
   }
 }

@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TodoComponent } from './todo.component';
 import { TodoFormComponent } from '../common/todo-form/todo-form.component';
 import { TodoTableComponent } from '../common/todo-table/todo-table.component';
-import { CapitalizePipe } from '../pipes/capitalize.pipe';
 
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -20,19 +20,21 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-
-
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { CapitalizePipe } from '../pipes/capitalize.pipe';
+import { TodoRoutingModule } from './todo-routing.module';
 @NgModule({
   declarations: [
+    TodoComponent,
     TodoFormComponent,
     TodoTableComponent,
     CapitalizePipe
-   
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    TodoRoutingModule,
     NzModalModule,
     NzFormModule,
     NzDatePickerModule,
@@ -46,11 +48,11 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
     NzToolTipModule,
     NzDividerModule,
     NzInputModule,
-    NzSelectModule
+    NzSelectModule,
+    NzTabsModule
   ],
   exports:[
-    TodoFormComponent,
-    TodoTableComponent,
+    TodoComponent,
     CapitalizePipe
   ]
 })

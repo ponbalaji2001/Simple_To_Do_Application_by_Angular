@@ -1,10 +1,11 @@
-import { todoModel, categModel, typeModel } from "./todo.model"
+import { todoModel, categModel, typeModel, userModel } from "./todo.model"
 export interface ToDoState {
   ToDos: todoModel[];
   Types: typeModel[];
   Categories: categModel[];
   Priority: any[];
-  Status: any[]
+  Status: any[];
+  User: userModel;
 }
 
 export const initialState: ToDoState = {
@@ -81,6 +82,13 @@ Status: [
     { text: 'Not Started', value: 'Not Started' },
     { text: 'In Progress', value: 'In Progress' },
     { text: 'Completed', value: 'Completed' }
-]
+],
+
+User: {
+    id: 'U1',
+    name: 'Balaji',
+    email: 'ponbalaji486@gmail.com',
+    password: 'Balaji@123'
+}
 
 };

@@ -1,9 +1,21 @@
 <nz-tabset [nzTabBarExtraContent]="extraTemplate">
-    <nz-tab *ngFor="let type of types;" [nzTitle]="type.name" (nzClick)="tabChange(type)">
+    <nz-tab *ngFor="let type of types;" [nzTitle]="type.name" (nzClick)="onTabChange(type)">
     </nz-tab>
 </nz-tabset>
 <ng-template #extraTemplate>
-  <!-- <img src="../assets/todo-logo.png" alt="logo"/> -->
+  <div nz-row class="row" nzGutter="4" nzAlign="middle" nzJustify="end" style="width: 150px">
+    <div nz-col nzSpan="4" style="display:flex; justify-content:center;">
+        <span nz-icon nzType="user" nzTheme="outline" style="color: gray;" ></span>
+    </div>
+    <div nz-col nzSpan="8">
+        <p style="text-align: center; margin: 0px; font-size: 14.5px;">Balaji</p>
+    </div>
+    <div nz-col nzSpan="6" style="display:flex; justify-content:center;">
+        <button nz-button nzShape="circle" nzType="default">
+            <a nz-popconfirm nzPopconfirmTitle="Are you sure to logout?" (nzOnConfirm)="logout()"><span nz-icon nzType="logout" nzTheme="outline"></span></a>
+        </button>
+    </div>
+   </div>
 </ng-template>
 
  <app-todo-table [title]="title" [toDoList$]="toDoList$" [type]="type"></app-todo-table>

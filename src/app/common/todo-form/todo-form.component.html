@@ -15,7 +15,7 @@
             <nz-form-item nz-col nzSpan="12">
               <nz-form-label nzFor="category">Category</nz-form-label>
               <nz-form-control [nzErrorTip]="categoryErrorTpl">
-                <nz-select nzShowSearch nzAllowClear [nzDropdownRender]="renderTemplate" formControlName="category" id="category" nzPlaceHolder="Choose category">
+                <nz-select nzShowSearch nzAllowClear [nzOptionOverflowSize]="6" [nzDropdownRender]="renderTemplate" formControlName="category" id="category" nzPlaceHolder="Choose category">
                   <nz-option *ngFor="let item of categories" [nzLabel]="item.text" [nzValue]="item.value"></nz-option>
                 </nz-select>
                 <ng-template #renderTemplate>
@@ -39,7 +39,7 @@
             <nz-form-item nz-col nzSpan="7.5">
               <nz-form-label nzFor="due_date">Due Date</nz-form-label>
               <nz-form-control [nzErrorTip]="due_dateErrorTpl">
-                <nz-date-picker formControlName="due_date" id="due_date" class="fixed-width"></nz-date-picker>
+                <nz-date-picker nzFormat="dd/MM/yyyy" formControlName="due_date" id="due_date" class="fixed-width"></nz-date-picker>
                 <ng-template #due_dateErrorTpl let-control>
                   <ng-container *ngIf="control.hasError('required')">Please input a due date!</ng-container>
                 </ng-template>

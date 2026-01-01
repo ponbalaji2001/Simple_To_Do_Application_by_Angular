@@ -10,7 +10,7 @@ export const _todoReducer = createReducer(
         data.id = state.ToDos.length + 1;
         return {
             ...state,
-            ToDos: [...state.ToDos, data]
+            ToDos: [data, ...state.ToDos]
         };
     }),
 

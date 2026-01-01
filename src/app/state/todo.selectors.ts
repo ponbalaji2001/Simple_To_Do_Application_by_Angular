@@ -45,3 +45,10 @@ export const getStatus = createSelector(
   }
 );
 
+export const getUser = createSelector(
+  todoStateSelector,
+  (state: ToDoState) => {
+    return state.User;
+  }
+);
+

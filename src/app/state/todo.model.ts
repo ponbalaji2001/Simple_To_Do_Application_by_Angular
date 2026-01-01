@@ -20,3 +20,10 @@ export interface typeModel{
     id: string;
     name: string;
 }
+
+export interface userModel{
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+}

@@ -8,12 +8,13 @@
 
     <nz-table #nzTable nzTableLayout="fixed" 
       [nzData]="displayToDoList"
+      [nzPageIndex]="currentPage"
       [nzPageSize]="pageSize"
       [nzTotal]="total"
       [nzFrontPagination]="false"
       nzShowSizeChanger
       nzShowPagination
-      [nzPageSizeOptions]="[10, 20, 30, 50, 100]" 
+      [nzPageSizeOptions]="[10, 20, 30, 50]" 
       (nzPageIndexChange)="onPageIndexChange($event)"
       (nzPageSizeChange)="onPageSizeChange($event)"
       [nzScroll]="pageSize>10 ? { x: null, y: '510px' } : { x: null, y: null }"
@@ -54,18 +55,18 @@
                 <nz-tag [nzColor]="'green'" *ngIf="data.priority==='Low'" class="prioriy-tag-width">{{ data.priority }}</nz-tag> 
               </td>
               <td>
-                <div class="editable-cell" [hidden]="editId === data.id" (click)="startSatusChange(data.id, data.status)">
+                <div class="editable-cell" [hidden]="editId === data.id" (click)="onSelectOpen(data.id, data.status)">
                   <nz-tag [nzColor]="'red'" *ngIf="data.status==='Not Started'" class="status-tag-width">{{ data.status }}</nz-tag> 
                   <nz-tag [nzColor]="'orange'" *ngIf="data.status==='In Progress'" class="status-tag-width">{{ data.status }}</nz-tag> 
                   <nz-tag [nzColor]="'green'" *ngIf="data.status==='Completed'" class="status-tag-width">{{ data.status }}</nz-tag> 
                 </div>
-                <nz-select [hidden]="editId !== data.id" [(ngModel)]="tempStatus" (ngModelChange)="stopSatusChange(tempStatus)">
+                <nz-select [hidden]="editId !== data.id" [(ngModel)]="tempStatus" (ngModelChange)="onStatusChange($event)" (nzOpenChange)="onSelectClose($event)">
                   <nz-option *ngFor="let item of status" [nzLabel]="item.text" [nzValue]="item.value"></nz-option>
                 </nz-select>
               </td>
               <td class="action-icons">
                 <a (click)="showModal('update',data.id)"><span nz-icon nzType="edit" nzTheme="outline"></span></a>
-                <a nz-popconfirm nzPopconfirmTitle="Sure to delete?" (nzOnConfirm)="deleteDataInStore(data.id)"><span nz-icon nzType="delete" nzTheme="outline"></span></a>
+                <a nz-popconfirm nzPopconfirmTitle="Are you sure to delete?" (nzOnConfirm)="deleteDataInStore(data.id)"><span nz-icon nzType="delete" nzTheme="outline"></span></a>
               </td>
             </ng-container>
           </tr>
