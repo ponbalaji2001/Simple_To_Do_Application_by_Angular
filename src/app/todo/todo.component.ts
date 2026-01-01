@@ -1,11 +1,12 @@
 import { Component} from '@angular/core';
 import { Store } from '@ngrx/store';
-import { getCategories, getToDoList } from '../state/todo.selectors';
+import { getCategories, getToDoList, getUser } from '../state/todo.selectors';
 import { getTypes } from '../state/todo.selectors';
 import { ToDoState } from '../state/todo.state';
-import { todoModel, typeModel } from '../state/todo.model';
+import { todoModel, typeModel, userModel } from '../state/todo.model';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { setAuthToken } from '../state/todo.actions';
 
 @Component({
   selector: 'app-todo',
@@ -17,6 +18,7 @@ export class TodoComponent {
   types : typeModel[] = [];
   type!: typeModel;
   categories: any[] = [];
+  userData!: userModel;
 
   toDoList$!: Observable<todoModel[]>;
   categories$!: Observable<any[]>
@@ -26,6 +28,11 @@ export class TodoComponent {
   ngOnInit() {
     this.getTypes();
     this.title = this.type!.name;
+
+    this.store.select(getUser).subscribe(user => {
+      this.userData = user;
+    });
+    
     this.getCategories(this.type!.id);
     this.getToDoList(this.type!.id);
   }
@@ -57,6 +64,7 @@ export class TodoComponent {
   }
 
   logout(){
+    this.store.dispatch(setAuthToken({ token: '' }));
     this.router.navigate(['/login']);
   }
 }

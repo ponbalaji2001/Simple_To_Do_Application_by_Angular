@@ -5,6 +5,8 @@ import { Store } from '@ngrx/store';
 import { userModel } from '../state/todo.model';
 import { getUser } from '../state/todo.selectors';
 import { Router } from '@angular/router';
+import { setAuthToken } from '../state/todo.actions';
+import { map, Observable, take } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -15,9 +17,9 @@ export class LoginComponent {
   
   loginForm: FormGroup;
   showPassword: boolean = false; 
-  userData!: userModel;
-  isLoggedIn: string = '';
   loginMessage: string = '';
+  userData$!: Observable<userModel>;
+  showAlert: boolean = false;
 
   constructor(private fb: FormBuilder, private store: Store<ToDoState>, private router: Router) {
     this.loginForm = this.fb.group({
@@ -27,25 +29,47 @@ export class LoginComponent {
   }
 
   ngOnInit() {
-    this.store.select(getUser).subscribe(user => {
-      this.userData = user;
+    this.userData$ = this.store.select(getUser); 
+  }
+
+ login() {
+
+  if(this.loginForm.valid) {
+    this.userData$.pipe(take(1)).subscribe(user => {
+    const { email, password } = this.loginForm.value;
+
+      if (email === user.email && password === user.password) {
+        const token = this.generateToken();
+        this.store.dispatch(setAuthToken({ token }));
+        this.loginMessage = 'Login Successful!';
+        setTimeout(() => this.router.navigate(['/todo']), 200);
+      } else {
+        this.loginMessage = 'Invalid Credentials!';
+      }
     });
+
+    this.showAlert = true;
+  }else {
+      Object.values(this.loginForm.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity();
+        }
+      });
+
+      this.showAlert = false;
   }
-    
- login(){
-  if (this.loginForm.valid) {
-    if(this.loginForm.value.email === this.userData.email && this.loginForm.value.password === this.userData.password){
-      this.isLoggedIn = 'yes';
-      this.loginMessage = "Login Successful!";
-      setTimeout(() => {
-        this.router.navigate(['/todo']);
-      }, 500);
-    }else{
-      this.isLoggedIn = 'no';
-      this.loginMessage = "Invalid Credentials!";
-    }
+
   }
- }
+
+ generateToken(length: number = 32): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
  
  togglePassword(): void {
   this.showPassword = !this.showPassword;

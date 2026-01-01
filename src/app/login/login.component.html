@@ -1,5 +1,5 @@
 <div class="login">
-   <nz-alert *ngIf="isLoggedIn === 'yes' || isLoggedIn === 'no'" [nzType]="isLoggedIn === 'yes' ? 'success' : 'error'" nzShowIcon [nzMessage]="loginMessage"></nz-alert>
+  <nz-alert *ngIf="showAlert" [nzType]="(userData$ | async)?.token ? 'success' : 'error'" nzShowIcon [nzMessage]="loginMessage"></nz-alert>
   <nz-card nzTitle="Login" class="login-container">
     <form nz-form nzLayout="vertical" [formGroup]="loginForm" (ngSubmit)="login()">  
       <div nz-row class="row" nzGutter="4">

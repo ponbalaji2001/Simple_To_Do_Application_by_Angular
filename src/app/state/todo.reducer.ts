@@ -1,6 +1,6 @@
 import { initialState } from "./todo.state";
 import { createReducer, on } from "@ngrx/store";
-import { addData, updateData, deleteData, updateStatus, addCateg } from "./todo.actions";
+import { addData, updateData, deleteData, updateStatus, addCateg, setAuthToken } from "./todo.actions";
 
 export const _todoReducer = createReducer(
     initialState,
@@ -65,6 +65,17 @@ export const _todoReducer = createReducer(
         };
     }),
 
+    on(setAuthToken, (state, action) => {
+        return {
+            ...state,
+            User: {
+            ...state.User,   
+            token: action.token 
+            }
+        };
+    })
+
+   
 )
 
 export function todoReducer(state: any, action: any) {
