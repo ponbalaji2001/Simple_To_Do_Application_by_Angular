@@ -1,6 +1,6 @@
 import { initialState } from "./todo.state";
 import { createReducer, on } from "@ngrx/store";
-import { addData, updateData, deleteData, updateStatus, addCateg, setAuthToken } from "./todo.actions";
+import { addData, updateData, deleteData, updateStatus, addCateg, setAuthToken, addType } from "./todo.actions";
 
 export const _todoReducer = createReducer(
     initialState,
@@ -73,7 +73,19 @@ export const _todoReducer = createReducer(
             token: action.token 
             }
         };
-    })
+    }),
+
+    on(addType, (state, action) => {
+        let data = { 
+            id: 'T' + (state.Types.length + 1).toString(),
+            name: action.newType,
+        };
+        
+        return {
+            ...state,
+            Types: [...state.Types, data]
+        };
+    }),
 
    
 )

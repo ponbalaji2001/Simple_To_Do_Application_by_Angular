@@ -69,7 +69,7 @@ ToDos: [
   { id: 4, task: "Monitor logs", description: "Monitor application logs to identify errors and issues promptly.", type: "Work", type_id: "T2", priority: "Medium", due_date: "2025-12-26", status: "Completed", category: "Operations", categ_id: "C16" },
   { id: 3, task: "Clean email inbox", description: "Remove spam emails and organize inbox folders properly.", type: "Personal", type_id: "T1", priority: "Low", due_date: "2025-12-25", status: "Completed", category: "Personal Organization", categ_id: "C17" },
   { id: 2, task: "Backup project files", description: "Take local and cloud backup of important project files.", type: "Work", type_id: "T2", priority: "Medium", due_date: "2025-12-25", status: "Completed", category: "Operations", categ_id: "C16" },
-  { id: 1, task: "Plan next week tasks", description: "List priorities and plan tasks for the upcoming week.", type: "Personal", type_id: "T1", priority: "Medium", due_date: "2025-12-24", status: "Completed", category: "Personal Planning", categ_id: "C18" }
+  { id: 1, task: "Plan next week tasks", description: "List priorities and plan tasks for the upcoming week.", type: "Work", type_id: "T2", priority: "Medium", due_date: "2025-12-24", status: "Completed", category: "Personal Planning", categ_id: "C18" }
 ],
 
 Priority: [

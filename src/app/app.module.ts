@@ -21,11 +21,11 @@ registerLocaleData(en);
     ],
     bootstrap: [AppComponent],
     imports: [
-        BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        HttpClientModule,
-        StoreModule.forRoot({ todo: todoReducer }),
-    ]
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    StoreModule.forRoot({ todo: todoReducer }),
+]
 })
 export class AppModule { }

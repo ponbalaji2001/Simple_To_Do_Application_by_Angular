@@ -1,21 +1,50 @@
 <nz-tabset [nzTabBarExtraContent]="extraTemplate">
-    <nz-tab *ngFor="let type of types;" [nzTitle]="type.name" (nzClick)="onTabChange(type)">
+    <nz-tab *ngFor="let type of (types$ | async); let i = index" [nzTitle]="type.name" (nzClick)="onTabChange(type)">
+        <app-todo-table [title]="title" [toDoList$]="toDoList$" [type]="type"></app-todo-table>
     </nz-tab>
 </nz-tabset>
 <ng-template #extraTemplate>
-  <div nz-row class="row" nzGutter="4" nzAlign="middle" nzJustify="end" style="width: 150px">
+  <div nz-row class="row" nzGutter="4" nzAlign="middle" nzJustify="end" style="width: 280px">
+    <div nz-col nzSpan="4" >
+      <button nz-button nzType="text" (click)="isShowModal = true">
+          <i nz-icon nzType="plus"></i>
+      </button>
+    </div>
+    <div nz-col nzSpan="2" >
+      <nz-divider nzType="vertical" class="custom-divider"></nz-divider>
+    </div>
     <div nz-col nzSpan="4" style="display:flex; justify-content:center;">
         <span nz-icon nzType="user" nzTheme="outline" style="color: gray;" ></span>
     </div>
-    <div nz-col nzSpan="8">
+    <div nz-col nzSpan="4">
         <p style="text-align: center; margin: 0px; font-size: 14.5px;">{{userData.name}}</p>
     </div>
-    <div nz-col nzSpan="6" style="display:flex; justify-content:center;">
+    <div nz-col nzSpan="4" style="display:flex; justify-content:center;">
         <button nz-button nzShape="circle" nzType="default">
             <a nz-popconfirm nzPopconfirmTitle="Are you sure to logout?" (nzOnConfirm)="logout()"><span nz-icon nzType="logout" nzTheme="outline"></span></a>
         </button>
     </div>
-   </div>
+  </div>
 </ng-template>
 
- <app-todo-table [title]="title" [toDoList$]="toDoList$" [type]="type"></app-todo-table>
+<nz-modal [(nzVisible)]="isShowModal" class="modal" nzTitle="Add Tab" (nzOnCancel)="isShowModal = false" (nzOnOk)="addTab()">
+    <ng-container class="container" *nzModalContent>
+        <form nz-form nzLayout="vertical" [formGroup]="tabForm" (ngSubmit)="addTab()">  
+          <div nz-row class="row">
+            <nz-form-item nz-col nzSpan="24">
+              <nz-form-label nzFor="tabName">Tab Name</nz-form-label>
+              <nz-form-control [nzErrorTip]="taskErrorTpl">
+                <input nz-input formControlName="tabName" id="tabName" placeholder="Enter tab name" autocomplete="off"/>
+                <ng-template #taskErrorTpl let-control>
+                  <ng-container *ngIf="control.hasError('required')">Please input a tab name!</ng-container>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </form>
+    </ng-container>
+</nz-modal>
+
+
+
+

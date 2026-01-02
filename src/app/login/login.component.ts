@@ -6,7 +6,7 @@ import { userModel } from '../state/todo.model';
 import { getUser } from '../state/todo.selectors';
 import { Router } from '@angular/router';
 import { setAuthToken } from '../state/todo.actions';
-import { map, Observable, take } from 'rxjs';
+import { Observable, take } from 'rxjs';
 
 @Component({
   selector: 'app-login',

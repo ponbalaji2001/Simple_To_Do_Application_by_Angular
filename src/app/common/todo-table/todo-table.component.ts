@@ -43,6 +43,7 @@ export class TodoTableComponent implements OnInit{
   constructor(private store: Store<ToDoState>) {}
 
   ngOnInit(): void {
+    
     this.store.select(getPriority).subscribe(items => {
       this.priority = items;
     });
@@ -61,7 +62,7 @@ export class TodoTableComponent implements OnInit{
       this.applyFilters(); 
     }
 
-    if (changes['toDoList$'] && this.type) {
+    if (changes['toDoList$']) {
       this.toDoList$.subscribe(list => {
         this.toDoList = list;
         this.applyFilters(false);
@@ -202,4 +203,5 @@ export class TodoTableComponent implements OnInit{
       }));
     });
   }
+  
 }
