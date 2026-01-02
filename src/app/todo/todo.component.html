@@ -33,9 +33,9 @@
           <div nz-row class="row">
             <nz-form-item nz-col nzSpan="24">
               <nz-form-label nzFor="tabName">Tab Name</nz-form-label>
-              <nz-form-control [nzErrorTip]="taskErrorTpl">
+              <nz-form-control [nzErrorTip]="tabNameErrorTpl">
                 <input nz-input formControlName="tabName" id="tabName" placeholder="Enter tab name" autocomplete="off"/>
-                <ng-template #taskErrorTpl let-control>
+                <ng-template #tabNameErrorTpl let-control>
                   <ng-container *ngIf="control.hasError('required')">Please input a tab name!</ng-container>
                 </ng-template>
               </nz-form-control>

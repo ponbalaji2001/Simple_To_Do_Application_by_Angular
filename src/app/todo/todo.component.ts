@@ -68,6 +68,12 @@ export class TodoComponent {
   }
 
   addTab(): void {
+    if(this.tabForm.invalid) {
+      this.tabForm.controls['tabName'].markAsDirty();
+      this.tabForm.controls['tabName'].updateValueAndValidity();
+      return;
+    }
+
     this.store.dispatch(addType({ newType: this.tabForm.value.tabName || 'New Tab' }));
     this.isShowModal = false;
     this.tabForm.reset();
